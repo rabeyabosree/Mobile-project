@@ -4,7 +4,8 @@ const router = express.Router();
 // Temporary in-memory storage
 let medicines = [
   { id: '1', name: 'Paracetamol', price: 5 },
-  { id: '2', name: 'Napa Extra', price: 8 }
+  { id: '2', name: 'Napa Extra', price: 8 },
+  { id: '3', name: 'Serup', price: 7}	
 ];
 
 // ✅ GET all medicines
