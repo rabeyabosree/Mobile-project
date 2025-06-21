@@ -1,45 +1,92 @@
 const express = require('express');
 const router = express.Router();
 
-// GET all medicines
+// Temporary in-memory storage
+let medicines = [
+  { id: '1', name: 'Paracetamol', price: 5 },
+  { id: '2', name: 'Napa Extra', price: 8 }
+];
+
+// ✅ GET all medicines
 router.get('/', (req, res) => {
-  res.send(
-    'All medicines list'
-  );
+  res.status(200).json({
+    success: true,
+    data: medicines
+  });
 });
 
-// GET single medicine by ID
+// ✅ GET single medicine by ID
 router.get('/:id', (req, res) => {
   const id = req.params.id;
-  res.send(
-    'Details of medicine ID: ' + id
-  );
+  const medicine = medicines.find(med => med.id === id);
+
+  if (!medicine) {
+    return res.status(404).json({ success: false, message: 'Medicine not found' });
+  }
+
+  res.status(200).json({ success: true, data: medicine });
 });
 
-// POST new medicine
-router.post('/', (req, res) => {
-  const newMed = req.body;
-  res.send(
-    'New medicded: ' + JSON.stringify(newMed)
-  );
+// ✅ POST new medicine
+router.post('/new', (req, res) => {
+  const { name, price } = req.body;
+
+  if (!name || !price) {
+    return res.status(400).json({ success: false, message: 'Name and price required' });
+  }
+
+  const newMedicine = {
+    id: Date.now().toString(), // simple unique ID
+    name,
+    price
+  };
+
+  medicines.push(newMedicine);
+
+  res.status(201).json({
+    success: true,
+    message: 'New medicine added',
+    data: newMedicine
+  });
 });
 
-// PUT update medicine
+// ✅ PUT update medicine
 router.put('/:id', (req, res) => {
   const id = req.params.id;
-  const updatedData = req.body;
-  res.send(
-    'Medicine updated: ' + id +
-    ', Data: ' + JSON.stringify(updatedData)
-  );
+  const { name, price } = req.body;
+  const index = medicines.findIndex(med => med.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({ success: false, message: 'Medicine not found' });
+  }
+
+  // Update fields
+  if (name) medicines[index].name = name;
+  if (price) medicines[index].price = price;
+
+  res.status(200).json({
+    success: true,
+    message: 'Medicine updated',
+    data: medicines[index]
+  });
 });
 
-// DELETE a medicine
+// ✅ DELETE a medicine
 router.delete('/:id', (req, res) => {
   const id = req.params.id;
-  res.send(
-    'Medicine deleted ID: ' + id
-  );
+  const index = medicines.findIndex(med => med.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({ success: false, message: 'Medicine not found' });
+  }
+
+  const deleted = medicines.splice(index, 1);
+
+  res.status(200).json({
+    success: true,
+    message: 'Medicine deleted',
+    data: deleted[0]
+  });
 });
 
 module.exports = router;
